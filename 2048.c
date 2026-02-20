@@ -346,12 +346,12 @@ while (1 == 1)
             printGameState(rows,columns,Board);
             break;
     }
-clearScreen();    //if you want to use a debugger comment this out
+    clearScreen();    //if you want to use a debugger comment this out
     printf("\n\n");
             printGameState(rows,columns,Board);
             input = getch();
-           // printf("input:%d\n",input);
-        if(input =='d'&&X==0){
+            //printf("input:%d\n",input);
+        if(input =='d'||input==77){
             R=CheckRight(rows,columns,Board);
             X=CheckHorizontal(rows,columns,Board);
             if(R==1&&X==1){
@@ -360,7 +360,7 @@ clearScreen();    //if you want to use a debugger comment this out
             }
             Right(rows,columns,Board);
         } 
-        if(input =='a'&&X==0){
+        if(input =='a'||input==75){
             L=CheckLeft(rows,columns,Board);
             X=CheckHorizontal(rows,columns,Board);
             if(L==1&&X==1){
@@ -369,7 +369,7 @@ clearScreen();    //if you want to use a debugger comment this out
             }
             Left(rows,columns,Board);
         }
-        if(input =='s'&&Y==0){
+        if(input =='s'||input==80){
             D=CheckDown(rows,columns,Board);
             Y=CheckVertical(rows,columns,Board);
             if(D==1&&Y==1){
@@ -378,7 +378,7 @@ clearScreen();    //if you want to use a debugger comment this out
             }
             Down(rows,columns,Board);
         }
-        if(input =='w'&&Y==0){
+        if(input =='w'||input==72){
             U=CheckUp(rows,columns,Board);
             Y=CheckVertical(rows,columns,Board);
             if(U==1&&Y==1){
