@@ -82,7 +82,6 @@ int spawnNum(int rows, int cols ,int **array){
     int rNum = (rand() % (10 - 1 + 1)) + 1;
     int rpNum = (rand() % (emptyPlaces - 1 + 1));
     int num = 0;
-     //printf("rNum = %d\nempty places = %d\n",rNum,emptyPlaces);
      int blockNum=0;
      if(rNum == 10){
         blockNum=4;
@@ -95,18 +94,11 @@ int spawnNum(int rows, int cols ,int **array){
      if(array[i][j]==0){
         if(num==rpNum){
             array[i][j]=blockNum;
-            //printf("NUM %d",num);
-            num++;
-        }else{
-            num++;
         }
+            num++;
      }
-     }
-     if(num == rpNum){
-        //printf("Num reached num=%d rpNum=%d",num,rpNum);
      }
     }
-   //  printf("block num = %d\n",blockNum);
      return 0;
 }
 int CheckRight(int rows,int cols, int**array){
