@@ -2,30 +2,57 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 #ifdef _WIN32
     #include <conio.h>
     void clearScreen(){
     system("cls");
     }
+
+enum arrowKeys{
+    UP_ARROW=72,
+    DOWN_ARROW=80,
+    LEFT_ARROW=75,
+    RIGHT_ARROW=77,
+};
 #else
 #include <termios.h>
 #include <unistd.h> 
-int getch(void){
-  struct termios oldattr, newattr;
-  unsigned char ch;
-  int retcode;
-  tcgetattr(STDIN_FILENO, &oldattr);
-  newattr=oldattr;
-  newattr.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
-  retcode=read(STDIN_FILENO, &ch, 1);
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
-  return retcode<=0? EOF: (int)ch;
+#include <sys/select.h>
+#include <fcntl.h>
+
+int _kbhit()
+{
+    struct termios oldt, newt;
+    int ch;
+    int oldf;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    if(ch != EOF)
+    {
+        //ungetc(ch, stdin);
+        return ch;
+    }
+    return 0;
 }
 void clearScreen(){
     system("clear");
 }
+enum arrowKeys{
+    UP_ARROW=65,
+    DOWN_ARROW=66,
+    LEFT_ARROW=68,
+    RIGHT_ARROW=67,
+};
 #endif
 
 void resetGameState(int rows, int cols ,int **array){
@@ -54,7 +81,7 @@ for (i = 0; i < cols; i++) {
     printf("| ");
   for (j = 0; j < rows; j++) {
   if(array[i][j]==0){
-    printf("    | ",array[i][j]);
+    printf("    | ");
   }
   else if(array[i][j]<10){
     printf(" %d  | ",array[i][j]);
@@ -317,8 +344,11 @@ int **Board = malloc(sizeof(int *)*columns);
         return 1;
     }
     resetGameState(rows,columns,Board);
-spawnNum(rows,columns,Board);
-spawnNum(rows,columns,Board);
+    spawnNum(rows,columns,Board);
+    spawnNum(rows,columns,Board);
+    clearScreen();    //if you want to use a debugger comment this out
+    printf("\n\n");
+    printGameState(rows,columns,Board);
 //printf("Status %d \n",Status);
 while (1 == 1)
 {
@@ -335,60 +365,134 @@ while (1 == 1)
 
     if(X==1&&Y==1){
         printf("GAME OVER\n");
-            printGameState(rows,columns,Board);
+            //printGameState(rows,columns,Board);
             break;
     }
-    clearScreen();    //if you want to use a debugger comment this out
-    printf("\n\n");
-            printGameState(rows,columns,Board);
-            input = getch();
+    //clearScreen();    //if you want to use a debugger comment this out
+    //printf("\n\n");
+    //printGameState(rows,columns,Board);
+
+            //input = getch();
+int linput;
+linput = _kbhit();
+//printf("\n %d",linput);
+if(linput){
+    #ifdef _WIN32
+input = _getch();
+if(input==224||input==0||input == -32){
+    input = _getch();
+    switch(input){
+        case UP_ARROW:
+        input='w';
+        break;
+        case DOWN_ARROW:
+        input='s';
+        break;
+        case LEFT_ARROW:
+        input='a';
+        break;
+        case RIGHT_ARROW:
+        input='d';
+        break;
+    }
+}
+    #else
+    input = linput;
+    if(input==27){
+        input=_kbhit();
+        input=_kbhit();
+        switch(input){
+        case UP_ARROW:
+        input='w';
+        break;
+        case DOWN_ARROW:
+        input='s';
+        break;
+        case LEFT_ARROW:
+        input='a';
+        break;
+        case RIGHT_ARROW:
+        input='d';
+        break;
+        case 0:
+        input = '\e';
+        break;
+        }
+    
+    }
+    #endif
             //printf("input:%d\n",input);
-        if(input =='d'||input==77){
+        if(input =='d'){
             R=CheckRight(rows,columns,Board);
             X=CheckHorizontal(rows,columns,Board);
             if(R==1&&X==1){
+                clearScreen();    //if you want to use a debugger comment this out
+                printf("\n\n");
+                printGameState(rows,columns,Board);
                 printf("Invalid move\n");
                 continue;
             }
             Right(rows,columns,Board);
+            clearScreen();    //if you want to use a debugger comment this out
+            printf("\n\n");
+            printGameState(rows,columns,Board);
         } 
-        if(input =='a'||input==75){
+        if(input =='a'){
             L=CheckLeft(rows,columns,Board);
             X=CheckHorizontal(rows,columns,Board);
             if(L==1&&X==1){
+                clearScreen();    //if you want to use a debugger comment this out
+                printf("\n\n");
+                printGameState(rows,columns,Board);
                 printf("Invalid move\n");
                 continue;
             }
             Left(rows,columns,Board);
+            clearScreen();    //if you want to use a debugger comment this out
+            printf("\n\n");
+            printGameState(rows,columns,Board);
         }
-        if(input =='s'||input==80){
+        if(input =='s'){
             D=CheckDown(rows,columns,Board);
             Y=CheckVertical(rows,columns,Board);
             if(D==1&&Y==1){
+                clearScreen();    //if you want to use a debugger comment this out
+                printf("\n\n");
+                printGameState(rows,columns,Board);
                 printf("Invalid move\n");
                 continue;
             }
             Down(rows,columns,Board);
+            clearScreen();    //if you want to use a debugger comment this out
+            printf("\n\n");
+            printGameState(rows,columns,Board);
         }
-        if(input =='w'||input==72){
+        if(input =='w'){
             U=CheckUp(rows,columns,Board);
             Y=CheckVertical(rows,columns,Board);
             if(U==1&&Y==1){
+                clearScreen();    //if you want to use a debugger comment this out
+                printf("\n\n");
+                printGameState(rows,columns,Board);
                 printf("Invalid move\n");
                 continue;
             }
             Up(rows,columns,Board);
+            clearScreen();    //if you want to use a debugger comment this out
+            printf("\n\n");
+            printGameState(rows,columns,Board);
         }
-        if(input =='e'){
+        /*if(input =='e'){
            int Status = spawnNum(rows,columns,Board);
            printf("status :%d\n",Status);
-        }
+        }*/
         if(input == 27){
            printf("Quitting\n");
            break;
         }
         
       //  findBlockCords(rows,columns,GameState,pCordArray);
+}
 }
 
 free(Board);
